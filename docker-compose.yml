@@ -1,0 +1,55 @@
+version: '3'
+services:
+  web:
+    build: "."
+    stdin_open: true
+    tty: true
+    ports:
+      - $HTTP_PORT:3000
+    # image構築で bundle install, npm i せず、起動時に行います。
+    # gem と node-modulesは volume で永続化しています。
+    command: /bin/sh -c "bundle install && npm i && bundle exec rails s -p 3000 -b 0.0.0.0"
+    environment:
+      RAILS_ENV: $RAILS_ENV
+      PG_USER: pguser
+      PG_PASS: pgpass
+      PG_HOST: postgres
+      PG_PORT: 5432
+      # bundler に gem の install 場所を伝える
+      BUNDLE_APP_CONFIG: ./.bundle
+      REDIS_URL: redis://redis:6379
+    # vendor/bundle にインストールする前提です
+    volumes:
+     - .:/var/www/web
+     - bundle:/var/www/web/vendor/bundle
+     - node-modules:/var/www/web/node_modules
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    restart: always
+    image: postgres:10.6
+    ports:
+      - $DB_PORT:5432
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pgpass
+      TZ: Asia/Tokyo
+    volumes:
+      - pgvolume:/var/lib/postgresql/data
+
+  redis:
+    restart: always
+    image: redis:3.2.11
+    environment:
+      TZ: Asia/Tokyo
+    ports:
+      - $REDIS_PORT:6379
+    command: redis-server --appendonly yes
+
+volumes:
+  pgvolume:
+  bundle:
+  node-modules:
+
