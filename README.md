@@ -8,8 +8,8 @@
 # 初回のみ
 cp -p .env.default .env
 docker-compose up
-docker-compose run web bundle exec rails db:create
-docker-compose run web bundle exec rails db:migrate db:seed_fu
+docker-compose exec web bundle exec rails db:create
+docker-compose exec web bundle exec rails db:migrate db:seed_fu
 
 # 以降
 docker-compose up
@@ -20,17 +20,17 @@ docker-compose up
 
 ```bash
 # bundle install
-docker-compose run web bundle install
+docker-compose exec web bundle install
 
 # npm install
-docker-compose run web npm i
+docker-compose exec web npm i
 
 # db:migrate db:seed_fu
-docker-compose run web bundle exec rails db:migrate db:seed_fu
+docker-compose exec web bundle exec rails db:migrate db:seed_fu
 ```
 
 * コンテナに接続する
 
 ```bash
-docker-compose run web bash
+docker-compose exec web bash
 ```
